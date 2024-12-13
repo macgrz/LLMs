@@ -25,7 +25,7 @@ class SelfAttention_V2(nn.Module):
         super().__init__()
 
         self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)    # uses more sophisticated weight initialization scheme than random nn.Parameter(torch.rand()) method
-        self.W_key   = nn.Linear(d_in, d_out, bias=qkv_bias)
+        self.W_key   = nn.Linear(d_in, d_out, bias=qkv_bias)    # also, it stores matricies in transposed form
         self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
 
 
@@ -38,6 +38,28 @@ class SelfAttention_V2(nn.Module):
         attn_weights = torch.softmax(
             attn_scores / keys.shape[-1]**0.5, dim=-1
             )
+        context_vector = attn_weights @ values
+
+        return context_vector
+
+
+class SelfAttention_V1_with_V2_weights(nn.Module):
+    def __init__(self, d_in, d_out):
+        super().__init__()
+
+        sa_v2 = SelfAttention_V2(d_in, d_out)
+
+        self.W_query = torch.nn.Parameter(sa_v2.W_query.weight.T)
+        self.W_key   = torch.nn.Parameter(sa_v2.W_key.weight.T)
+        self.W_value = torch.nn.Parameter(sa_v2.W_value.weight.T)
+        
+    def forward(self, x):
+        keys = x @ self.W_key
+        values = x @ self.W_value
+        queries = x @ self.W_query
+
+        attn_scores = queries @ keys.T
+        attn_weights = torch.softmax(attn_scores / keys.shape[-1]**0.5, dim=-1)
         context_vector = attn_weights @ values
 
         return context_vector
