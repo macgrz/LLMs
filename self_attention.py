@@ -95,3 +95,16 @@ class CasualAttention(nn.Module):
         context_vector = attn_weights @ values
 
         return context_vector
+
+
+class MultiHeadAttentionWrapper(nn.Module):
+    def __init__(self, d_in, d_out, context_lenght, dropout, num_heads, qkv_bias=False):
+        super().__init__()
+        self.heads = nn.ModuleList([
+            CasualAttention(d_in, d_out, context_lenght, dropout) for _ in range(num_heads)
+            ])
+        
+    def forward(self, x):
+        return torch.cat([head(x) for head in self.heads], dim=-1)  # processing in for loop, each batch at once
+    
+        
