@@ -13,6 +13,36 @@ GPT_CONFIG_124M = {
     "qkv_bias": False
 }
 
+GPT_CONFIG_MEDIUM = {
+    "vocab_size": 50257,
+    "context_lenght": 1024,
+    "emb_dim": 1024,
+    "n_heads": 16,
+    "n_layers": 24,
+    "drop_rate": 0.1,
+    "qkv_bias": False
+}
+
+GPT_CONFIG_LARGE = {
+    "vocab_size": 50257,
+    "context_lenght": 1024,
+    "emb_dim": 1280,
+    "n_heads": 20,
+    "n_layers": 36,
+    "drop_rate": 0.1,
+    "qkv_bias": False
+}
+
+GPT_CONFIG_XL = {
+    "vocab_size": 50257,
+    "context_lenght": 1024,
+    "emb_dim": 1600,
+    "n_heads": 25,
+    "n_layers": 48,
+    "drop_rate": 0.1,
+    "qkv_bias": False
+}
+
 class ExampleDeepNeuralNetwork(nn.Module):
     def __init__(self, layer_sizes, use_shortcut):
         super().__init__()
@@ -103,7 +133,7 @@ class LayerNorm(nn.Module):    # it should normalize the outputs so variance is 
         out_norm = (x - mean) / torch.sqrt(var + self.eps)  # eps is to not divide by 0
         return self.scale * out_norm + self.shift
 
-class DummyGPTModel(nn.Module):
+class GPTModel(nn.Module):
     def __init__(self, cfg):
         super().__init__()
 
