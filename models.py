@@ -12,6 +12,31 @@ GPT_CONFIG_124M = {
     "qkv_bias": False
 }
 
+
+
+class GELU(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return 0.5 * x * (
+            1 + torch.tanh(
+                torch.sqrt(torch.tensor(2.0 / torch.pi)) * (x + 0.44715 * torch.pow(x, 3))
+            )
+        )
+    
+class FeedForward(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(cfg["emb_dim"], 4 * cfg["emb_dim"]),   # expanding the embedding dim by *4
+            GELU(),
+            nn.Linear(cfg["emb_dim"] * 4, cfg["emb_dim"])   # back to the emb_dim dimension
+        )
+
+    def forward(self, x):
+        return self.layers(x)
+
 class DummyTransformerBlock(nn.Module):
     def __init__(self, cfg):
         super().__init__()
@@ -21,7 +46,7 @@ class DummyTransformerBlock(nn.Module):
     
 
 class LayerNorm(nn.Module):    # it should normalize the outputs so variance is 1 and mean is 0 (gaussian distribution)
-    def __init__(self, emb_dim):
+    def __init__(self, emb_dim):    # it is more flexible comparing to batch normalization
         super().__init__()
         self.eps = 1e-5
         self.scale = nn.Parameter(torch.ones(emb_dim))  # trainable parameter
