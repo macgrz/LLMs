@@ -113,6 +113,9 @@ class MultiHeadAttention(nn.Module):
         super().__init__()  # super() function is used to call a method from a parent class in the inheritance hierarchy. 
                             # In the context of your MultiHeadAttention class, which inherits from torch.nn.Module, 
                             # the super().__init__() line is used to initialize the parent class (nn.Module) properly.
+
+        assert (d_out % num_heads == 0), "d_out must be divisible by num_heads"
+        
         self.d_out = d_out
         self.num_heads = num_heads
         self.head_dim = d_out // num_heads # reduce the projectsion dim to match the desired output dim
